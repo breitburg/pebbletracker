@@ -29,7 +29,7 @@ static int16_t menu_get_cell_height(MenuLayer *menu_layer, MenuIndex *cell_index
   }
   return MENU_CELL_ROUND_UNFOCUSED_SHORT_CELL_HEIGHT;
 #else
-  return 44;
+  return 52;
 #endif
 }
 
@@ -86,27 +86,10 @@ static void menu_draw_row(GContext *ctx, const Layer *cell_layer, MenuIndex *cel
   uint8_t device_idx = g_categories[cell_index->section].device_start_index + cell_index->row;
   const PebbleDevice *device = &g_devices[device_idx];
 
-  bool is_selected = menu_layer_is_index_selected(s_menu_layer, cell_index);
-
-  // Explicitly fill background and set text color to fix animation flicker
-#ifdef PBL_COLOR
-  if (is_selected) {
-    graphics_context_set_fill_color(ctx, GColorCobaltBlue);
-    graphics_context_set_text_color(ctx, GColorWhite);
-  } else {
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_context_set_text_color(ctx, GColorBlack);
-  }
-#else
-  if (is_selected) {
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_context_set_text_color(ctx, GColorWhite);
-  } else {
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_context_set_text_color(ctx, GColorBlack);
-  }
-#endif
-  graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+  // Use menu_cell_layer_is_highlighted for proper animation support
+  // MenuLayer handles background colors via menu_layer_set_normal_colors/set_highlight_colors
+  bool is_highlighted = menu_cell_layer_is_highlighted(cell_layer);
+  graphics_context_set_text_color(ctx, is_highlighted ? GColorWhite : GColorBlack);
 
   // Create subtitle - keep it simple and Pebble-like
   static char subtitle[32];
@@ -126,12 +109,12 @@ static void menu_draw_row(GContext *ctx, const Layer *cell_layer, MenuIndex *cel
   int16_t margin = PBL_IF_ROUND_ELSE(bounds.size.w / 6, 4);
   int16_t text_width = bounds.size.w - (2 * margin);
 
-  GFont title_font = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+  GFont title_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
 
   GFont subtitle_font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 
   // Draw title
-  GRect title_rect = GRect(margin, 2, text_width, 20);
+  GRect title_rect = GRect(margin, 0, text_width, 28);
   graphics_draw_text(ctx, device->model_name,
                      title_font,
                      title_rect,
@@ -140,7 +123,7 @@ static void menu_draw_row(GContext *ctx, const Layer *cell_layer, MenuIndex *cel
                      NULL);
 
   // Draw subtitle
-  GRect subtitle_rect = GRect(margin, 22, text_width, 18);
+  GRect subtitle_rect = GRect(margin, 28, text_width, 18);
   graphics_draw_text(ctx, subtitle,
                      subtitle_font,
                      subtitle_rect,
@@ -195,10 +178,13 @@ static void window_load(Window *window) {
   // Configure button behavior
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
 
-  // Set colors
+  // Set colors - enables MenuLayer's built-in highlight animations
 #ifdef PBL_COLOR
   menu_layer_set_normal_colors(s_menu_layer, GColorWhite, GColorBlack);
   menu_layer_set_highlight_colors(s_menu_layer, GColorCobaltBlue, GColorWhite);
+#else
+  menu_layer_set_normal_colors(s_menu_layer, GColorWhite, GColorBlack);
+  menu_layer_set_highlight_colors(s_menu_layer, GColorBlack, GColorWhite);
 #endif
 
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
