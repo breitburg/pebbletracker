@@ -1,0 +1,11 @@
+# Build artifacts
+build/
+.lock-waf_linux_build
+
+# IDE/Editor
+.claude/
+.cursor/
+.vscode/
+
+# OS
+.DS_Store
