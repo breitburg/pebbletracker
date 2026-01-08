@@ -1,12 +1,14 @@
 {
   "name": "pebbletracker",
-  "author": "MakeAwesomeHappen",
+  "author": "Ilia Breitburg",
   "version": "1.0.0",
-  "keywords": ["pebble-app"],
+  "keywords": [
+    "pebble-app"
+  ],
   "private": true,
   "dependencies": {},
   "pebble": {
-    "displayName": "pebbletracker",
+    "displayName": "Pebbletracker",
     "uuid": "94b011ed-d23b-4314-8190-8f1dd00ba117",
     "sdkVersion": "3",
     "enableMultiJS": true,
@@ -21,11 +23,16 @@
     "watchapp": {
       "watchface": false
     },
-    "messageKeys": [
-      "dummy"
-    ],
+    "messageKeys": [],
     "resources": {
-      "media": []
+      "media": [
+        {
+          "type": "png",
+          "name": "IMAGE_MENU_ICON",
+          "file": "icon.png",
+          "menuIcon": true
+        }
+      ]
     }
   }
 }
